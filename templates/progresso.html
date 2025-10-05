@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2>📊 Meu Progresso</h2>
+        <p class="text-muted">Visualize sua evolução nas últimas semanas</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">📈 Progresso Semanal</h5>
+                <canvas id="progressChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">📋 Estatísticas</h5>
+                <div id="statsContainer">
+                    <!-- JavaScript vai preencher aqui -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title">💡 Dicas</h5>
+                <small class="text-muted">
+                    • Mantenha uma rotina consistente<br>
+                    • Estabeleça metas semanais<br>
+                    • Revise problemas anteriores<br>
+                    • Comemore seu progresso!
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js CDN - BIBLIOTECA DE GRÁFICOS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// Dados do progresso (vindos do Python via Jinja2)
+const weeklyData = {{ weekly_data | tojson }};
+const currentWeek = {{ current_week }};
+const stats = {{ stats | tojson }};
+
+console.log("📊 Dados recebidos:", weeklyData);
+console.log("📈 Estatísticas:", stats);
+
+// Preparar dados para o gráfico
+const labels = weeklyData.map(data => `Semana ${data.week}`);
+const problemsData = weeklyData.map(data => data.problems_solved);
+
+// Preencher estatísticas na página (usando stats do Python)
+document.getElementById('statsContainer').innerHTML = `
+    <p><strong>📅 Total (6 semanas):</strong> <span class="badge bg-primary">${stats.total} problemas</span></p>
+    <p><strong>📊 Média Semanal:</strong> <span class="badge bg-info">${stats.average.toFixed(1)} problemas</span></p>
+    <p><strong>🏆 Melhor Semana:</strong> <span class="badge bg-success">${stats.best_week} problemas</span></p>
+    <p><strong>🎯 Semana Atual:</strong> <span class="badge bg-secondary">Semana ${currentWeek}</span></p>
+`;
+
+// Criar gráfico de linha
+const ctx = document.getElementById('progressChart').getContext('2d');
+const progressChart = new Chart(ctx, {
+    type: 'line',  // Tipo: Gráfico de LINHA
+    data: {
+        labels: labels,  // Eixo X: Semanas
+        datasets: [{
+            label: 'Problemas Resolvidos',  // Legenda
+            data: problemsData,  // Eixo Y: Números
+            borderColor: '#28a745',  // Cor da linha (verde)
+            backgroundColor: 'rgba(40, 167, 69, 0.1)',  // Cor de fundo (verde claro)
+            borderWidth: 3,  // Espessura da linha
+            fill: true,  // Preencher área abaixo da linha
+            tension: 0.4,  // Suavizar a linha (curvas)
+            pointBackgroundColor: '#28a745',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,  // Gráfico responsivo
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'top'
+            },
+            title: {
+                display: true,
+                text: 'Evolução Semanal',  // Título do gráfico
+                font: {
+                    size: 16
+                }
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false,
+                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                padding: 10
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,  // Eixo Y começa no zero
+                title: {
+                    display: true,
+                    text: 'Problemas Resolvidos',  // Label eixo Y
+                    font: {
+                        weight: 'bold'
+                    }
+                },
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.1)'
+                }
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: 'Semanas',  // Label eixo X
+                    font: {
+                        weight: 'bold'
+                    }
+                },
+                grid: {
+                    color: 'rgba(0, 0, 0, 0.1)'
+                }
+            }
+        },
+        interaction: {
+            intersect: false,
+            mode: 'nearest'
+        },
+        animations: {
+            tension: {
+                duration: 1000,
+                easing: 'linear'
+            }
+        }
+    }
+});
+
+console.log("✅ Gráfico criado com sucesso!");
+</script>
+
+<style>
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 10px;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.badge {
+    font-size: 0.8em;
+    padding: 0.4em 0.6em;
+}
+
+#progressChart {
+    max-height: 300px;
+    width: 100%;
+}
+</style>
+{% endblock %}
