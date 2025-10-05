@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title text-center">🐝 Criar Nova Conta</h3>
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Nome de Usuário</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                        <div class="form-text">Este será seu login no site</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Senha</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="beecrowd_id" class="form-label">BeeCrowd ID</label>
+                        <input type="number" class="form-control" id="beecrowd_id" name="beecrowd_id" required>
+                        <div class="form-text">
+                            💡 <strong>Como encontrar seu ID:</strong><br>
+                            1. Acesse seu perfil no BeeCrowd<br>
+                            2. Veja o número no final da URL<br>
+                            3. Exemplo: <code>...profile/12345</code> → ID é <strong>12345</strong>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success w-100">Criar Conta</button>
+                </form>
+                
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('login') }}">Já tem conta? Faça login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
