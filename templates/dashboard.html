@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2>🏆 Ranking Semanal (Semana {{ current_week }})</h2>
+        
+        <!-- FORMULÁRIO PARA ADICIONAR PROBLEMAS - ATUALIZADO -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">📊 Adicionar Problemas de Hoje</h5>
+                <form method="POST" action="{{ url_for('add_problems') }}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Quantos problemas resolveu AGORA?</label>
+                            <input type="number" class="form-control" name="problems_solved" 
+                                   min="1" max="20" value="1" required>
+                            <small class="text-muted">Número de problemas resolvidos desde a última atualização</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-success w-100">
+                                ➕ Adicionar Problemas
+                            </button>
+                        </div>
+                    </div>
+                    <small class="text-muted">
+                        💡 Digite quantos problemas você resolveu desde a última vez que atualizou
+                    </small>
+                </form>
+            </div>
+        </div>
+
+        <!-- RANKING -->
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Posição</th>
+                        <th>Usuário</th>
+                        <th>Problemas Resolvidos</th>
+                        <th>BeeCrowd ID</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user_data in ranking %}
+                    <tr class="{% if user_data.username == session.username %}table-primary{% endif %}">
+                        <td>
+                            {% if loop.index == 1 %}🥇
+                            {% elif loop.index == 2 %}🥈
+                            {% elif loop.index == 3 %}🥉
+                            {% else %}{{ loop.index }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ user_data.username }}
+                            {% if user_data.username == session.username %}<strong>(Você)</strong>{% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-success">{{ user_data.problems_solved }}</span>
+                        </td>
+                        <td>
+                            <small class="text-muted">{{ user_data.beecrowd_id }}</small>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">👥 Adicionar Amigo</h5>
+                <form method="POST" action="{{ url_for('add_friend') }}">
+                    <div class="mb-3">
+                        <label class="form-label">BeeCrowd ID do amigo</label>
+                        <input type="number" class="form-control" name="friend_id" required>
+                        <small class="text-muted">Número do perfil do amigo (ex: 12345)</small>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">➕ Adicionar Amigo</button>
+                </form>
+            </div>
+        </div>
+        <!-- No dashboard.html, depois do card de amigo -->
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title">📈 Análise de Progresso</h5>
+                <p>Acompanhe sua evolução semana a semana</p>
+                <a href="{{ url_for('progresso') }}" class="btn btn-warning w-100">
+                    📊 Ver Gráficos de Progresso
+                </a>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-body">
+                <h5 class="card-title">📈 Seu Progresso</h5>
+                <p><strong>🐝 Seu BeeCrowd ID:</strong> {{ user.beecrowd_id }}</p>
+                <p><strong>🏅 Sua Posição:</strong> 
+                    {% for user_data in ranking %}
+                        {% if user_data.username == session.username %}
+                            <span class="badge bg-primary">{{ loop.index }}º Lugar</span>
+                        {% endif %}
+                    {% endfor %}
+                </p>
+                <p><strong>✅ Problemas da Semana:</strong> 
+                    {% for user_data in ranking %}
+                        {% if user_data.username == session.username %}
+                            <span class="badge bg-success">{{ user_data.problems_solved }} resolvidos</span>
+                        {% endif %}
+                    {% endfor %}
+                </p>
+                
+                <!-- BOTÃO DE SINCRONIZAÇÃO -->
+                <div class="mt-3">
+                    <a href="{{ url_for('sync_beecrowd') }}" class="btn btn-info btn-sm w-100">
+                        🔄 Sincronizar com BeeCrowd
+                    </a>
+                    <small class="text-muted">
+                        Pega automaticamente seu total de problemas
+                    </small>
+                </div>
+
+                <!-- INFO DO SISTEMA -->
+                <div class="mt-3 p-2 bg-light rounded">
+                    <small class="text-muted">
+                        <strong>💡 Como funciona:</strong><br>
+                        • <strong>Adicionar Problemas</strong>: Some ao seu total de hoje<br>
+                        • <strong>Sincronizar</strong>: Pega seu total do BeeCrowd<br>
+                        • Ranking: Soma todos os dias da semana
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
